@@ -58,7 +58,7 @@ namespace SelectionCoefficientsBasedValue
 
         }
         /// <summary>
-        /// Добавление колонок поумолчанию
+        /// Добавление колонок по умолчанию
         /// </summary>
         /// <param name="dataTable">Таблица которой нужно добавить колонки</param>
         /// <param name="columns">Список имен колонок</param>
@@ -70,9 +70,9 @@ namespace SelectionCoefficientsBasedValue
             }
         }
         /// <summary>
-        /// Добавление значений поумолчанию
+        /// Добавление значений по умолчанию
         /// </summary>
-        /// <param name="dataTable">Таблица которой указывается значения поумолчанию</param>
+        /// <param name="dataTable">Таблица которой указывается значения по умолчанию</param>
         private void DefaultData(DataTable dataTable)
         {
             InterfaceDataGrid.iforAngel = 0;
