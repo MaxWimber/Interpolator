@@ -9,8 +9,6 @@ namespace SelectionCoefficientsBasedValue
     {
         public static PlotModel MyModel { get; private set; }
 
-
-
         /// <summary>
         /// График
         /// </summary>
