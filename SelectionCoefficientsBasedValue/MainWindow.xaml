@@ -68,7 +68,9 @@
                               PreviewKeyDown="DataGrid_PreviewKeyDown"
                               ItemsSource="{Binding}"
                               ItemStringFormat=""
-                              InputScope="Number">
+                              InputScope="Number"
+                              EnableColumnVirtualization="True"
+                              CanUserDeleteRows="False">
                         <DataGrid.RowHeaderStyle>
                             <Style TargetType="DataGridRowHeader">
                                 <EventSetter Event="Click"

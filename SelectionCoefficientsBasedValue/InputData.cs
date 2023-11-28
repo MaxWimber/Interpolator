@@ -231,7 +231,10 @@ namespace SelectionCoefficientsBasedValue
 
             DataRowCollection rows = DataTableNewValueFirst.Rows;
             DataColumnCollection columns = DataTableNewValueFirst.Columns;
-
+            if (Dt.Rows.Count <= 1 || Dt.Columns.Count <= 1)
+            {
+                return;
+            }
             for (int i = 0; i < Dt.Rows.Count; i++)
             {
 
@@ -299,6 +302,10 @@ namespace SelectionCoefficientsBasedValue
             if (Dt.Rows.Count == 0) 
             { 
                 Dt.Rows.Add(); 
+            }
+            if (Dt.Rows.Count <= 1 || Dt.Columns.Count <= 1)
+            {
+                return;
             }
             List<(string FirstColumn, string SecondColumn)> stringValuesFromTable = GetStringValuesFromTable(DtForKandAFromAngle, "angle", 1);
             (string Angle, string k) first = stringValuesFromTable.FirstOrDefault();

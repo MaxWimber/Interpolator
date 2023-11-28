@@ -135,23 +135,23 @@ namespace SelectionCoefficientsBasedValue
         /// <summary>
         /// Метод вывода графиков и формул
         /// </summary>
-        /// <param name="DataGrid">datagrid с которого бирутся данные о выбраной ячейки</param>
+        /// <param name="DataGrid">datagrid с которого берутся данные о выбранной ячейки</param>
         private void PaintGraphs(DataGrid DataGrid)
         {
             DataGridCellInfo currentCell = DataGrid.CurrentCell;
             if (currentCell.Column != null && currentCell.Column.Header.ToString() != "btn")
             {
-                int columIndex = currentCell.Column.DisplayIndex;
-                if(columIndex <= (Dt.Columns.Count - 1) && columIndex >= 0)
+                int columnIndex = currentCell.Column.DisplayIndex;
+                if(columnIndex <= (Dt.Columns.Count - 1) && columnIndex >= 0)
                 {
                     if (Dt.Rows.Count == 0) { Dt.Rows.Add(); }
                     
-                    string nameGraph = inputData.GetFirst(Dt, columIndex); 
+                    string nameGraph = inputData.GetFirst(Dt, columnIndex); 
                     PlotViewer.Model = ChartCoordinatesWindow.MainViewModel(Dt, DataTableNewValueFirst, 
-                            DataTableNewValue, columnName[0], columIndex, 
+                            DataTableNewValue, columnName[0], columnIndex, 
                              $"График искомых значений {columnName[1]}: {nameGraph}"  );
                 }
-                if (columIndex - 1 >= 0)
+                if (columnIndex - 1 >= 0)
                 {
                     return;
                 }
@@ -316,14 +316,15 @@ namespace SelectionCoefficientsBasedValue
         /// <param name="sender">object</param>
         /// <param name="e">KeyEventArgs</param>
         private void DataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
-        {       
+        {
             if (Key.Delete == e.Key)
             {
                 int columnDisplayIndex = displayIndexSelectedColumn;
                 int columnIndex = indexSelectedColumn;
-                
-                if(DataGrid.SelectedCells.Count > 1)
+
+                if (DataGrid.SelectedCells.Count > 1)
                 {
+                    int indexSelectedRow = DataGrid.SelectedIndex;
                     if (columnIndex > 0 && columnIndex < DataGrid.Columns.Count)
                     {
                         if (columnDisplayIndex > 0 && columnDisplayIndex < Dt.Columns.Count
@@ -332,7 +333,32 @@ namespace SelectionCoefficientsBasedValue
                             Dt.Columns.RemoveAt(columnDisplayIndex);
                             DataGrid.Columns.RemoveAt(columnIndex);
                         }
-                    } 
+                    }
+                    if (indexSelectedRow != -1)
+                    {
+
+                        if (DataGrid.SelectedCells.Count >= Dt.Columns.Count + Dt.Rows.Count)
+                        {
+                            while (DataGrid.Columns.Count != 2)
+                            {
+                                int indexDt = Dt.Columns.Count - 1;
+                                int indexDG = DataGrid.Columns.Count - 1;
+                                Dt.Columns.RemoveAt(indexDt);
+                                DataGrid.Columns.RemoveAt(indexDG);
+                            }
+                            while (Dt.Rows.Count != 1)
+                            {
+                                int indexRow = Dt.Rows.Count - 1;
+                                Dt.Rows.RemoveAt(indexRow);
+                            }
+                            Dt.Rows[0][0] = "";
+                        }
+                        else
+                        {
+                            Dt.Rows.RemoveAt(indexSelectedRow);
+                        }
+                    }
+                    
                 }
                 else if (DataGrid.SelectedCells.Count == 1)
                 {
@@ -340,7 +366,7 @@ namespace SelectionCoefficientsBasedValue
                     int columnIndexOne = currentCell.Column.DisplayIndex;
                     int currentRowIndex = DataGrid.Items.IndexOf(DataGrid.CurrentItem);
 
-                    if(currentRowIndex < 0 || currentRowIndex >= Dt.Rows.Count || columnIndexOne >= Dt.Columns.Count)
+                    if (currentRowIndex < 0 || currentRowIndex >= Dt.Rows.Count || columnIndexOne >= Dt.Columns.Count)
                     {
                         return;
                     }
