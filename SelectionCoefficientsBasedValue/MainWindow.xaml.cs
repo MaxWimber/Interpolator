@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Controls.Primitives;
+using System.Windows.Media;
 
 namespace SelectionCoefficientsBasedValue
 {
@@ -14,6 +15,7 @@ namespace SelectionCoefficientsBasedValue
     public partial class MainWindow : Window
     {
         private readonly InputData inputData = new InputData();
+        private Brush brush2 = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 43, 53, 65)); // Цвет возврата после креста
 
         public DataTable Dt =                       new DataTable();
         public DataTable DtForKandAFromAngle =      new DataTable();
@@ -379,5 +381,70 @@ namespace SelectionCoefficientsBasedValue
                 }
             }
         }
+        #region Кнопки закрытия и перетаскивания
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+                this.Close();
+        }
+       
+        private void Border_MouseDown_2(object sender, MouseButtonEventArgs e)
+        {
+            this.Close();
+        }
+        #endregion
+
+        private void mainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+            {
+                MainGrides.Margin = new Thickness(6);
+                Border_maximized.Content = "🗗";
+            }
+            else
+            {
+                MainGrides.Margin = new Thickness(0);
+                Border_maximized.Content = "🗖";
+            }
+        }
+        #region Кнопки закрытия и перетаскивания
+        private void Border_close_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Border_MouseDown_1(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                if (WindowState == WindowState.Maximized)
+                {
+                    WindowState = WindowState.Normal;
+                }
+                else
+                {
+                    DragMove();
+                }
+
+            }
+        }
+
+
+        #endregion
+
+        #region максимайз
+        private void Border_maximized_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState != WindowState.Maximized)
+            {
+                WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                WindowState = WindowState.Normal;
+            }
+        }
+
+        #endregion
     }
 }
