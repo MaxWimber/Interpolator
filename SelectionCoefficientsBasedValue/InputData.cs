@@ -4,13 +4,31 @@ using System.Data;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows;
+using System.Linq.Expressions;
+using System.Windows.Documents;
+using System.Windows.Markup;
+using SelectionCoefficientsBasedValue;
 
 
 namespace SelectionCoefficientsBasedValue
 {
     public class InputData
     {
+        private class Model
+        {
+            
 
+            public Model(int dn, int gn, int lz)
+            {
+                Dn = dn;
+                Gn = gn;
+                Lz = lz;
+                
+            }
+            public int Dn { get; set; }
+            public int Gn { get; set; }
+            public int Lz { get; set; }
+        }
 
 
         /// <summary>
@@ -423,6 +441,7 @@ namespace SelectionCoefficientsBasedValue
         /// <param name="DataGrid">DataGrid которая будет связываться с DtReverse</param>
         public void Reverse(DataTable Dt, DataTable DtReverse, DataGrid DataGrid)
         {
+            DtReverse.Clear();
             DataRowCollection rowsReverse = DtReverse.Rows;
             DataRowCollection rowsDt = Dt.Rows;
             DataColumnCollection columnsDt = Dt.Columns;
@@ -438,16 +457,20 @@ namespace SelectionCoefficientsBasedValue
 
             int k = 1;
             int l = 1;
+            int j = 1;
 
             for (int i = 0; i < rowsReverse.Count; i++)
             {
-                rowsReverse[i][MainWindow.columnName[0]] = rowsDt[k][MainWindow.columnName[0]];
-                rowsReverse[i][MainWindow.columnName[1]] = rowsDt[0][l];
-                rowsReverse[i][MainWindow.columnName[2]] = rowsDt[k][l];
-                k++;
-                if (k == rowsDt.Count)
+                rowsReverse[i][MainWindow.columnName[0]] = rowsDt[l][MainWindow.columnName[0]];
+                
+                rowsReverse[i][MainWindow.columnName[1]] = rowsDt[0][j];
+                rowsReverse[i][MainWindow.columnName[2]] = rowsDt[l][j];
+
+                
+                j++;
+                if (j == columnsDt.Count)
                 {
-                    k = 1;
+                    j = 1;
                     if (l < columnsDt.Count - 1)
                     {
                         l++;
@@ -455,6 +478,93 @@ namespace SelectionCoefficientsBasedValue
                 }
             }
             InterfaceDataGrid.BindingDataGridByName(DataGrid, DtReverse, true, true);
+        }
+
+        /// <summary>
+        /// Вставка текста
+        /// </summary>
+        /// <param name="DataGrid">DataGrid к которому привязывается таблица</param>
+        /// <param name="Dt">Таблица в которую вставляются значения</param>
+        /// <param name="currentRowIndex">текущий индекс строки выделенной ячейки</param>
+        /// <param name="columnIndex">текущий индекс колонки выделенной ячейки</param>
+        public void InstanceForRevers(DataGrid DataGrid, DataTable Dt, int currentRowIndex, int columnIndex)
+        {
+            var copyingData = Clipboard.GetData("Text");
+            if (copyingData == null)
+            {
+                return;
+            }
+
+            string[] dataNumbers = copyingData.ToString().Split('\n');
+
+            dataNumbers = dataNumbers.Reverse().Skip(1).Reverse().ToArray();
+            int DataTableCountRow = currentRowIndex;
+            for (int i = 0; i < dataNumbers.Length; i++)
+            {
+                int dataTableCountColumn = columnIndex;
+                string[] dataNumberCount = dataNumbers[i].Split('\t');
+                if (Dt.Rows.Count < dataNumbers.Length + currentRowIndex)
+                {
+                    Dt.Rows.Add();
+                }
+                for (int j = 0; j < dataNumberCount.Length; j++)
+                {
+                    if (Dt.Columns.Count < dataNumberCount.Length + columnIndex)
+                    {
+                        continue;
+                    }
+                    Dt.Rows[DataTableCountRow][dataTableCountColumn] = dataNumberCount[j].Replace("\r", "");
+                    dataTableCountColumn++;
+                }
+                DataTableCountRow++;
+            }
+            ClearSymbol(Dt);
+            InterfaceDataGrid.BindingDataGridByName(DataGrid, Dt, false, false);
+        }
+
+        public void DeReverse(DataTable DtReverse, DataTable Dt, DataGrid dataGrid)
+        {
+            List<string> DN = DtReverse.AsEnumerable().Select(row => row.Field<string>(0)).Distinct().ToList();
+
+            var countDn = DtReverse.AsEnumerable().GroupBy(x => x.Field<string>(1)).ToList();
+            
+            List<List<object>> turnedTable = DtReverse.AsEnumerable().GroupBy(row => row[1]).Select(row => row.Select(x => x[2]).ToList()).ToList();
+            
+            List<string> LZ = DtReverse.AsEnumerable().Select(row => row.Field<string>(1)).Distinct().ToList();
+
+            for (int i = 0; i < DN.Count; i++)
+            {
+                if (Dt.Rows.Count-1 < DN.Count)
+                {
+                    Dt.Rows.Add();
+                }
+                
+                Dt.Rows[i+1][MainWindow.columnName[0]] = DN[i];
+            }
+            for (int i = 0; i < LZ.Count; i++)
+            {
+                if (Dt.Columns.Count - 1 < LZ.Count)
+                {
+                    if (Dt.Columns[i].ColumnName != $"angle{i + 1}" && Dt.Columns[i].ColumnName != "DN")
+                    {
+                        InterfaceDataGrid.iforAngel++;
+                        InterfaceDataGrid.CreateDataGridColumns(dataGrid, $"angle{i + 1}",
+                                                                   typeof(TextBlock), $"angle{i + 1}", 40.0);
+                        Dt.Columns.Add($"angle{i + 1}");
+                    }
+
+                }
+                Dt.Rows[0][i+1] = LZ[i];
+            }
+
+            for(int j = 0; j < turnedTable.Count; j++)
+            {
+                for (int i = 0; i < turnedTable[j].Count; i++)
+                {
+                    Dt.Rows[i+1][j+1] = turnedTable[j][i];
+                }
+            }
+            InterfaceDataGrid.BindingDataGridByName(dataGrid, Dt, true, true);
         }
     }
 }

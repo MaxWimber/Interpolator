@@ -47,6 +47,14 @@
                             Grid.Column="0"
                             Click="Paste_Click"
                             Style="{DynamicResource NormalButtons}" />
+                    <Button x:Name="Test"
+                            Content="Test"
+                            HorizontalAlignment="Center"
+                            Margin="0,42,0,0"
+                            VerticalAlignment="Top"
+                            Width="85"
+                            Height="26"
+                            Style="{DynamicResource NormalButtons}" />
                     <Button x:Name="BuildAndCalculate"
                             Content="Построить и расcчитать"
                             Margin="0,42,5,0"
@@ -151,20 +159,15 @@
                                  Style="{DynamicResource TabItemStyleLile}">
                             <Grid Background="#FFE5E5E5">
                                 <DataGrid x:Name="DataGridReverse"
+                                          RowHeaderWidth="20"
                                           CanUserReorderColumns="False"
-                                          CanUserAddRows="True"
-                                          SelectionUnit="Cell"
+                                          SelectionUnit="CellOrRowHeader"
                                           CanUserSortColumns="False"
-                                          AutoGenerateColumns="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="DN"
-                                                            MinWidth="50" />
-                                        <DataGridTextColumn Header="GN"
-                                                            MinWidth="50" />
-                                        <DataGridTextColumn Header="LZ"
-                                                            MinWidth="50" />
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                                          AutoGenerateColumns="False"
+                                          KeyDown="DataGridReverse_KeyDown"
+                                          CanUserResizeRows="False"
+                                          CanUserAddRows="False"
+                                          PreviewKeyDown="DataGridReverse_PreviewKeyDown" />
                             </Grid>
                         </TabItem>
                     </TabControl>
@@ -197,14 +200,7 @@
                                           SelectionUnit="Cell"
                                           CanUserSortColumns="False"
                                           AutoGenerateColumns="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="DN"
-                                                            MinWidth="50" />
-                                        <DataGridTextColumn Header="GN"
-                                                            MinWidth="50" />
-                                        <DataGridTextColumn Header="LZ"
-                                                            MinWidth="50" />
-                                    </DataGrid.Columns>
+
                                 </DataGrid>
                             </Grid>
                         </TabItem>

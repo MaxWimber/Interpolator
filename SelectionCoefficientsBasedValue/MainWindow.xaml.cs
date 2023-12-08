@@ -25,7 +25,7 @@ namespace SelectionCoefficientsBasedValue
         public DataTable DtRevers =                 new DataTable();
         public DataTable DtReversNewValue =         new DataTable();
 
-        public static List<string> columnName = new List<string>() { "DN", "GN", "LZ" };
+        public static List<string> columnName = new List<string>() { "DN", "GN", "LZ", "angle1" };
 
         public List<string> columnsForKandAFromAngle = new List<string>() { "angle", "k", "a" };
         public List<string> columnsSearchable = new List<string>() { "isk", "isa", "M", "N", "B", "C" };
@@ -40,22 +40,39 @@ namespace SelectionCoefficientsBasedValue
         {
             InitializeComponent();
 
-            DefaultData(Dt);
-            AddDefaultDataGrid(DataGrid, Dt);
+            DefaultData(Dt, columnName[0]);
+            DefaultData(Dt, columnName[1]);
+            AddDefaultDataGrid(DataGrid, Dt, columnName[0], 0);
+            AddDefaultDataGrid(DataGrid, Dt, columnName[1], 1);
 
-            DefaultData(DataTableNewValue);
-            AddDefaultDataGrid(DataGridSearchedValues, DataTableNewValue);
+
+            DefaultData(DataTableNewValue, columnName[0]);
+            DefaultData(DataTableNewValue, columnName[1]);
+            AddDefaultDataGrid(DataGridSearchedValues, DataTableNewValue, columnName[0], 0);
+            AddDefaultDataGrid(DataGridSearchedValues, DataTableNewValue, columnName[1], 1);
 
             AddColumns(DtForKandAFromAngle, columnsForKandAFromAngle);
-            DefaultData(DtForKandAFromAngle);
+            DefaultData(DtForKandAFromAngle, columnName[0]);
+            DefaultData(DtForKandAFromAngle, columnName[1]);
 
             AddColumns(DtSearchable, columnsSearchable);
-            DefaultData(DtSearchable);
+            DefaultData(DtSearchable, columnName[0]);
+            DefaultData(DtSearchable, columnName[1]);
 
-            AddColumns(DtRevers, columnsRevers);
-            AddColumns(DtReversNewValue, columnsRevers);
+            //AddColumns(DtRevers, columnsRevers);
+            //AddColumns(DtReversNewValue, columnsRevers);
+            for (int i = 0; i < 3; i++)
+            {
+                DefaultData(DtRevers, columnName[i]);
+                DefaultData(DtReversNewValue, columnName[i]);
+                AddDefaultDataGrid(DataGridReverse, DtRevers, columnName[i], i);
+                AddDefaultDataGrid(DataGridSearchedValuesRevers, DtReversNewValue, columnName[i], i);
+            }
+            
+            
 
-            DefaultData(DataTableNewValueFirst);
+            DefaultData(DataTableNewValueFirst, columnName[0]);
+            DefaultData(DataTableNewValueFirst, columnName[1]);
             ButtonColumn.DisplayIndex = DataGrid.Columns.Count-1;
 
         }
@@ -75,14 +92,14 @@ namespace SelectionCoefficientsBasedValue
         /// Добавление значений по умолчанию
         /// </summary>
         /// <param name="dataTable">Таблица которой указывается значения по умолчанию</param>
-        private void DefaultData(DataTable dataTable)
+        private void DefaultData(DataTable dataTable, string columnName)
         {
-            InterfaceDataGrid.iforAngel = 0;
-            dataTable.Columns.Add(columnName[0]);
+            InterfaceDataGrid.iforAngel = 1;
+            dataTable.Columns.Add(columnName);
             if (dataTable.Rows.Count == 0)
             {
                 dataTable.Rows.Add();
-                dataTable.Rows[0][columnName[0]] = "";
+                dataTable.Rows[0][columnName] = "";
             }
         }
         /// <summary>
@@ -90,12 +107,12 @@ namespace SelectionCoefficientsBasedValue
         /// </summary>
         /// <param name="DataGrid">DataGrid для которого создается колонки</param>
         /// <param name="dataTable">таблица с которой связывается dataGrid</param>
-        private void AddDefaultDataGrid(DataGrid DataGrid, DataTable dataTable)
+        private void AddDefaultDataGrid(DataGrid DataGrid, DataTable dataTable, string columnName, int displayIndex)
         {
             var newDataGridTextColumn = new DataGridTextColumn
             {
-                Header = columnName[0],
-                DisplayIndex = 0,
+                Header = columnName,
+                DisplayIndex = displayIndex,
                 MinWidth = 50
             };
 
@@ -221,7 +238,10 @@ namespace SelectionCoefficientsBasedValue
 
             ButtonColumn.DisplayIndex = DataGrid.Columns.Count - 1;
 
+            
             Dt.Columns.Add($"angle{InterfaceDataGrid.iforAngel}");
+            
+            
 
 
             if (Dt.Rows.Count == 0)
@@ -327,9 +347,9 @@ namespace SelectionCoefficientsBasedValue
                 if (DataGrid.SelectedCells.Count > 1)
                 {
                     int indexSelectedRow = DataGrid.SelectedIndex;
-                    if (columnIndex > 0 && columnIndex < DataGrid.Columns.Count)
+                    if (columnIndex > 1 && columnIndex < DataGrid.Columns.Count)
                     {
-                        if (columnDisplayIndex > 0 && columnDisplayIndex < Dt.Columns.Count
+                        if (columnDisplayIndex > 1 && columnDisplayIndex < Dt.Columns.Count
                             && DataGrid.Columns[columnIndex].Header.ToString() != "btn")
                         {
                             Dt.Columns.RemoveAt(columnDisplayIndex);
@@ -341,7 +361,7 @@ namespace SelectionCoefficientsBasedValue
 
                         if (DataGrid.SelectedCells.Count >= Dt.Columns.Count + Dt.Rows.Count)
                         {
-                            while (DataGrid.Columns.Count != 2)
+                            while (DataGrid.Columns.Count != 3)
                             {
                                 int indexDt = Dt.Columns.Count - 1;
                                 int indexDG = DataGrid.Columns.Count - 1;
@@ -354,6 +374,7 @@ namespace SelectionCoefficientsBasedValue
                                 Dt.Rows.RemoveAt(indexRow);
                             }
                             Dt.Rows[0][0] = "";
+                            Dt.Rows[0][1] = "";
                         }
                         else
                         {
@@ -446,5 +467,40 @@ namespace SelectionCoefficientsBasedValue
         }
 
         #endregion
+
+
+        private void DataGridReverse_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.V && Keyboard.IsKeyDown(Key.LeftCtrl))
+            {
+                DataGridCellInfo currentCell = DataGridReverse.CurrentCell;
+                int currentRowIndex = DataGridReverse.Items.IndexOf(DataGridReverse.CurrentItem);
+                int columnIndex = currentCell.Column.DisplayIndex;
+                
+                inputData.InstanceForRevers(DataGridReverse, DtRevers, currentRowIndex, columnIndex);
+
+                InterfaceDataGrid.BindingDataGridByName(DataGrid, Dt, true, true);
+
+                inputData.DeReverse(DtRevers, Dt, DataGrid);
+                ButtonColumn.DisplayIndex = DataGrid.Columns.Count - 1;
+
+                isCalculate = false;
+                
+
+            }
+        }
+
+        private void DataGridReverse_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (Key.Delete == e.Key)
+            {
+                if (DtRevers.Rows != null)
+                {
+                    return;
+                }
+
+                DtRevers.Rows.Add("");
+            }
+        }
     }
 }

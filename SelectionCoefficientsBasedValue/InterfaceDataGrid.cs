@@ -9,7 +9,7 @@ namespace SelectionCoefficientsBasedValue
 {
     public class InterfaceDataGrid
     {
-        public static int iforAngel = 0;
+        public static int iforAngel = 1;
 
 
         /// <summary>
@@ -28,6 +28,7 @@ namespace SelectionCoefficientsBasedValue
             // Создание нового столбца
             var newDataGridTextColumn = new DataGridTextColumn
             {
+                
                 Header = columnName,
                 DisplayIndex = DataGrid.Columns.Count,
                 HeaderTemplate = new DataTemplate
@@ -76,6 +77,8 @@ namespace SelectionCoefficientsBasedValue
 
                 for (int i = 0; i < DataGrid.Columns.Count; i++)
                 {
+                    DataGrid wdw = new DataGrid();
+                    
                     string ju = ((DataGridTextColumn)DataGrid.Columns[i]).Header.ToString();
                     for (int j = 0; j < dataTable.Columns.Count; j++)
                     {
